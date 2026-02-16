@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing dependencies..."
+      - pip install -r "Lite HAT/requirements.txt" -t .
+      
+  pre_build:
+    commands:
+      - echo "Running pre-build checks..."
+      - python --version
+      
+  build:
+    commands:
+      - echo "Building Lambda package..."
+      - cd "Lite HAT"
+      - zip -r ../translate.zip translate.py
+      - cd ..
+      - echo "Building frontend package..."
+      - cd "Lite HAT"
+      - zip -r ../frontend.zip frontend.py index.html requirements.txt
+      - cd ..
+      
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+
+artifacts:
+  files:
+    - translate.zip
+    - frontend.zip
+    - templates/bedrock-translation-template.yaml
