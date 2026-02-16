@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedrock Translation Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+        input, select { width: 100%; padding: 8px; margin: 10px 0; }
+        button { background: #007bff; color: white; padding: 10px; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bedrock Translation Tool</h1>
+        <form id="translateForm">
+            <label for="text">Text to Translate:</label>
+            <textarea id="text" name="text" required placeholder="Enter text here..."></textarea>
+
+            <label for="target_language">Target Language:</label>
+            <select id="target_language" name="target_language" required>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Italian">Italian</option>
+                <option value="Portuguese">Portuguese</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Korean">Korean</option>
+            </select>
+
+            <label for="context">Context (optional):</label>
+            <input type="text" id="context" name="context" placeholder="e.g., Formal greeting, Technical document">
+
+            <button type="submit">Translate</button>
+        </form>
+
+        <div id="result" style="display: none;">
+            <h3>Translation Result:</h3>
+            <p id="translation"></p>
+            <p><small>ID: <span id="id"></span></small></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('translateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Translating...';
+
+            const formData = new FormData(this);
+            const data = {
+                text: formData.get('text'),
+                target_language: formData.get('target_language'),
+                context: formData.get('context')
+            };
+            const idempotencyKey = crypto.randomUUID(); // Generate a unique key for the request
+
+            try {
+                const response = await fetch('/translate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Idempotency-Key': idempotencyKey
+                    },
+                    body: new URLSearchParams(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('translation').textContent = result.translation;
+                    document.getElementById('id').textContent = result.id;
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    const errorMessage = result.message || result.error || 'An unknown error occurred.';
+                    alert('Error: ' + errorMessage);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Translate';
+            }
+        });
+    </script>
+</body>
+</html>

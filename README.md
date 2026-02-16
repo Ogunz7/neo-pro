@@ -21,6 +21,7 @@ This is a complete enterprise-grade translation tool built on AWS using Amazon B
 ### Files
 - `translate.py`: Lambda function handler for translation API
 - `frontend.py`: Flask web application
+- `index.html`: Legacy root copy of UI template (kept for compatibility)
 - `templates/index.html`: Web interface
 - `bedrock-translation-template.yaml`: CloudFormation template for full infrastructure
 - `requirements.txt`: Python dependencies for frontend and local testing
@@ -138,3 +139,19 @@ Monthly costs: $40-85
 3. Set up monitoring with CloudWatch dashboards
 4. Implement authentication if needed
 5. Add more languages and models
+
+
+## Local development quick start
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run frontend locally:
+   ```bash
+   python frontend.py
+   ```
+3. Run tests:
+   ```bash
+   pytest -q
+   ```
