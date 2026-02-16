@@ -21,10 +21,20 @@ This is a complete enterprise-grade translation tool built on AWS using Amazon B
 ### Files
 - `translate.py`: Lambda function handler for translation API
 - `frontend.py`: Flask web application
+- `index.html`: Legacy root copy of UI template (kept for compatibility)
 - `templates/index.html`: Web interface
 - `bedrock-translation-template.yaml`: CloudFormation template for full infrastructure
-- `requirements.txt`: Python dependencies for frontend
+- `requirements.txt`: Python dependencies for frontend and local testing
 - `app.py`: SentinelCase Lambda (separate case management system)
+
+## Production hardening implemented
+
+- Strict request validation for translation endpoint (`POST` only, idempotency key format checks, max text length guard).
+- Configurable CORS (`ALLOWED_ORIGIN`) and request tracing (`X-Request-Id` response header).
+- Improved idempotency placeholder cleanup safety in DynamoDB.
+- More resilient frontend API calls with retries, timeout handling, and explicit error mapping.
+- `/health` endpoint for load balancer and uptime checks.
+- Basic automated tests for request validation and core handler paths.
 
 ## Deployment
 
@@ -77,6 +87,7 @@ This is a complete enterprise-grade translation tool built on AWS using Amazon B
 ```bash
 curl -X POST https://your-api-id.execute-api.region.amazonaws.com/prod/translate \
   -H "Content-Type: application/json" \
+  -H "Idempotency-Key: request-123" \
   -d '{
     "text": "Hello, world!",
     "target_language": "Spanish",
@@ -128,3 +139,19 @@ Monthly costs: $40-85
 3. Set up monitoring with CloudWatch dashboards
 4. Implement authentication if needed
 5. Add more languages and models
+
+
+## Local development quick start
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Run frontend locally:
+   ```bash
+   python frontend.py
+   ```
+3. Run tests:
+   ```bash
+   pytest -q
+   ```
